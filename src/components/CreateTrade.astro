@@ -1,0 +1,54 @@
+---
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card"
+---
+
+<div class="form-container">
+    <Card className="w-2/4 m-auto ">
+        <CardContent className="p-4">
+            <form id="create-trade-form" class="gap-2 flex justify-around items-center" >
+                <div class="form-group">
+                  <Label htmlFor="energyAmount">Energy Amount</Label>
+                  <Input type="number" id="energyAmount" name="energyAmount" required>
+                </div>
+                <div class="form-group">
+                  <Label htmlFor="price">Price</Label>
+                  <Input type="number" id="price" name="price" required>
+                </div>
+                <div class="form-group">
+                  <Button type="submit">Create Trade</Button>
+                </div>
+              </form>
+        </CardContent>
+      </Card>
+  </div>
+
+  <script>
+    import solarTrade from "@/contracts/solar_trade";
+    import { isAllowed, getPublicKey, signTransaction } from '@stellar/freighter-api';
+
+    document.getElementById('create-trade-form').addEventListener('submit', async function(event) {
+    
+        event.preventDefault();
+        const energy_amount = document.getElementById('energyAmount').value;
+        const price = document.getElementById('price').value;
+
+        // if (await isAllowed()) {
+        //     const publicKey = await getPublicKey();
+        //     if (publicKey) solarTrade.options.publicKey = publicKey;
+        // }
+        // const publicKey = await getPublicKey();
+        // const tx = await solarTrade.create({seller: publicKey, energy_amount, price });
+        const {result} = await solarTrade.get_trades();
+        
+
+        console.log(result);
+
+    
+    });
+  </script>

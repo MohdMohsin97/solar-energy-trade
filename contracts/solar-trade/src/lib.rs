@@ -9,15 +9,8 @@ const ID: Symbol = symbol_short!("ID");
 pub enum Error {
     NoData = 1,
     NotValidTradeId = 2,
-}
-
-impl Error {
-    pub fn messsage(&self) -> &'static str {
-        match self {
-            Error::NoData => "No data available",
-            Error::NotValidTradeId => "Not a valid trade ID",
-        }
-    }
+    Unauthorized = 3,
+    UnsufficentEnergy = 4
 }
 
 #[derive(Clone)]
@@ -65,7 +58,7 @@ impl SolarTrade {
         let mut trade: Trade = get_trade(&env, trade_id)?;
 
         if trade.energy_amount < energy_amount {
-            panic!("Not enough energy");
+            return Err(Error::UnsufficentEnergy)
         }
 
         let amount: i128 = (trade.price * energy_amount) as i128;
@@ -92,7 +85,7 @@ impl SolarTrade {
         let mut trade: Trade = get_trade(&env, trade_id)?;
 
         if seller != trade.seller {
-            panic!("Anuthorized")
+            return Err(Error::Unauthorized)
         }
 
         let seller_token_client = token::Client::new(&env, &seller);

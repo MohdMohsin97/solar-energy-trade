@@ -1,43 +1,30 @@
 ---
+import '@/styles/globals.css'
 import Layout from "../layouts/Layout.astro";
 import ConnectFreighter from '../components/ConnectFreighter.astro';
-import solarTrade from "../contracts/solar_trade";
-
-const { result } = await solarTrade.get_trades();
-if (result.isErr()) {
-	console.log("No Trade Exist")
-}
-
-
-
-
+import Trades from '@/components/Trades.astro'
+import CreateTrade from '@/components/CreateTrade.astro'
 ---
 
 <script is:inline>var global = global || window;</script>
 <Layout >
-	<main>
+	<main class="max-w-6xl m-auto">
+		<header class="m-2 flex justify-between">
+			<h3 class="text-3xl font-bold">SET</h3>
+			<div class="flex justify-around gap-2">
+				<ConnectFreighter />
+			</div>
+		</header>
+		<h1 class="scroll-m-20 text-4xl w-[420px] m-auto my-16 font-extrabold tracking-tight lg:text-5xl">
+				Solar Trade Energy
+		</h1>
 		
-		<h1>Solar Energy</h1>
-		<ConnectFreighter />
+		<p class="leading-7 [&:not(:first-child)]:mt-6 text-center my-8">Solar Energy Trade is a decentralized application (dApp) built on the Stellar Blockchain that enables users to trade solar energy within their neighborhood. Sellers can list their surplus solar energy for sale, specifying the amount and price. Buyers can purchase this energy using a trade ID, transferring tokens directly to the seller. The platform ensures a secure and transparent transaction process, empowering individuals to manage and monetize their solar energy independently, without relying on centralized organizations.</p>
+		
+		<CreateTrade />
+		
+		<Trades />
 	</main>
 </Layout>
 
-<style>
-	main {
-		margin: auto;
-		padding: 1rem;
-		width: 800px;
-		max-width: calc(100% - 2rem);
-		color: white;
-		font-size: 20px;
-		line-height: 1.6;
-	}
-	
-	h1 {
-		font-size: 4rem;
-		font-weight: 700;
-		line-height: 1;
-		text-align: center;
-		margin-bottom: 1em;
-	}
-</style>
+
