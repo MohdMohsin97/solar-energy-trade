@@ -34,3 +34,4 @@ Solar Energy Trade aims to revolutionize energy markets by decentralizing the co
 ## Personal Story Summary
 
 Hi, I'm Mod Mohsin. Growing up in a neighborhood with frequent power outages, I realized the potential of solar energy to bring about energy independence. My passion for blockchain technology and sustainable energy led me to create Solar Energy Trade. This platform empowers communities to trade surplus solar energy directly, fostering a sustainable and resilient energy future without relying on centralized entities. By merging technology with green energy, I aim to make a positive impact on how we consume and share energy.
+![Screenshot from 2024-05-26 20-55-21](https://github.com/MohdMohsin97/solar-energy-trade/assets/136162998/b70c4061-19c6-4b28-bb86-bcceb4cb153e)
