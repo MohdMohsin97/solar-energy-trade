@@ -1,16 +1,30 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, token, Address, Env, Symbol};
-
+use soroban_sdk::{contract, contractimpl, contracttype, contracterror, symbol_short, token, Address, Env, Symbol, Vec};
 
 const ID: Symbol = symbol_short!("ID");
 
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum Error {
+    NoData = 1,
+    NotValidTradeId = 2,
+}
+
+impl Error {
+    pub fn messsage(&self) -> &'static str {
+        match self {
+            Error::NoData => "No data available",
+            Error::NotValidTradeId => "Not a valid trade ID",
+        }
+    }
+}
 
 #[derive(Clone)]
 #[contracttype]
 pub enum DataKey {
     Trade,
 }
-
 
 #[derive(Debug,Clone, PartialEq)]
 #[contracttype]
@@ -21,13 +35,6 @@ pub struct Trade {
     price: u32,
     withdraw_amount: i128,
 }
-
-// #[derive(Clone)]
-// #[contracttype]
-// pub struct Trades {
-//     trades : Vec<Trade>
-// }
-
 
 #[contract]
 pub struct SolarTrade;
@@ -46,16 +53,16 @@ impl SolarTrade {
             seller,
             energy_amount,
             price,
-            withdraw_amount: 0,
-        });
+            withdraw_amount: 0_i128,
+        }); 
         
         update_id(&env, id);
     }
 
-    pub fn buy_energy(env: Env, buyer: Address, trade_id: u32, energy_amount: u32) {
+    pub fn buy_energy(env: Env, buyer: Address, trade_id: u32, energy_amount: u32) -> Result<Trade, Error>  {
         buyer.require_auth();
 
-        let mut trade: Trade = get_trade(&env, trade_id);
+        let mut trade: Trade = get_trade(&env, trade_id)?;
 
         if trade.energy_amount < energy_amount {
             panic!("Not enough energy");
@@ -75,12 +82,14 @@ impl SolarTrade {
 
         env.storage().persistent().set(&trade_id, &trade);
 
+        Ok(trade)
+
     }
 
-    pub fn withdraw_amount(env: Env, seller: Address, trade_id: u32) {
+    pub fn withdraw_amount(env: Env, seller: Address, trade_id: u32) -> Result<Trade, Error> {
         seller.require_auth();
 
-        let mut trade: Trade = get_trade(&env, trade_id);
+        let mut trade: Trade = get_trade(&env, trade_id)?;
 
         if seller != trade.seller {
             panic!("Anuthorized")
@@ -96,6 +105,23 @@ impl SolarTrade {
 
         env.storage().persistent().set(&trade_id, &trade);
 
+        Ok(trade)
+
+    }
+
+    pub fn get_trades(env: Env) -> Result<Vec<Trade>, Error>{
+        let mut trades: Vec<Trade> = Vec::new(&env);
+        let id = match env.storage().instance().get(&ID) {
+            Some(id) => id,
+            None => return Err(Error::NoData)
+        };
+
+        for trade_id in 1..=id {
+            let trade: Trade = get_trade(&env, trade_id)?;
+            trades.push_back(trade);
+        }
+
+        Ok(trades)
     }
 
 }
@@ -104,24 +130,14 @@ fn write_trade(env: &Env, trade: &Trade) {
     env.storage().persistent().set(&trade.id, trade);
 }
 
-fn get_trade(env: &Env, trade_id: u32) -> Trade {
-    env.storage().persistent().get(&trade_id).unwrap()
+fn get_trade(env: &Env, trade_id: u32) -> Result<Trade, Error> {
+    match env.storage().persistent().get(&trade_id) {
+        Some(trade) => Ok(trade),
+        None => return Err(Error::NotValidTradeId)
+    }
 }
 
 fn update_id(env: &Env, id: u32) {
     env.storage().instance().set(&ID, &id);
     env.storage().instance().extend_ttl(100, 100);
-}
-mod test;
-
-// CC6KLR6JR7RTZUHN7F3YESTVGO4EUPUN6YJAXQ5JTSS2Q3EOXS3PEKXW
-
-soroban contract invoke \                               
-  --id CC6KLR6JR7RTZUHN7F3YESTVGO4EUPUN6YJAXQ5JTSS2Q3EOXS3PEKXW \
-  --source alice \
-  --network testnet \
-  -- \
-  create \
-  --seller GA2U2XAPTNGKRK74HGBDCBZK7HJASP6LFK2DHPQZECMDSYDE6U5CTWTB \
-  --energy_amount 100 \
-  --price 10
+}   
