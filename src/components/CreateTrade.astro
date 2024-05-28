@@ -38,14 +38,13 @@ import {
         const energy_amount = document.getElementById('energyAmount').value;
         const price = document.getElementById('price').value;
 
-        // if (await isAllowed()) {
-        //     const publicKey = await getPublicKey();
-        //     if (publicKey) solarTrade.options.publicKey = publicKey;
-        // }
-        // const publicKey = await getPublicKey();
-        // const tx = await solarTrade.create({seller: publicKey, energy_amount, price });
-        const {result} = await solarTrade.get_trades();
-        
+        if (await isAllowed()) {
+            const publicKey = await getPublicKey();
+            if (publicKey) solarTrade.options.publicKey = publicKey;
+        }
+        const publicKey = await getPublicKey();
+        const tx = await solarTrade.create({seller: publicKey, energy_amount, price });
+        const {result} = await tx.signAndSend({signTransaction});
 
         console.log(result);
 
